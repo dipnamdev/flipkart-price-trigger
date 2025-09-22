@@ -102,6 +102,11 @@ def fetch_price_selenium(product_link):
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
+        # Ensure Chromium binary is correctly located in Linux/containers
+        try:
+            options.binary_location = os.environ.get("CHROME_BIN", "/usr/bin/chromium")
+        except Exception:
+            pass
         options.add_argument('--disable-blink-features=AutomationControlled')
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
@@ -194,6 +199,10 @@ def get_product_title_selenium(product_link):
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
+        try:
+            options.binary_location = os.environ.get("CHROME_BIN", "/usr/bin/chromium")
+        except Exception:
+            pass
         options.add_argument(f'--user-agent={random.choice(USER_AGENTS)}')
         
         driver = webdriver.Chrome(options=options)
@@ -470,8 +479,8 @@ def start_price_checker():
             except Exception as e:
                 print(f"[ERROR] Error in price check loop: {e}")
             
-            print(f"[INFO] Sleeping for 1 hour...")
-            time.sleep(60)  # 1 hour
+            print(f"[INFO] Sleeping for 30 min...")
+            time.sleep(1800)  # 30 minute
     
     thread = threading.Thread(target=price_check_loop, daemon=True)
     thread.start()
