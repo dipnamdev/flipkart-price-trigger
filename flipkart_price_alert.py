@@ -1,5 +1,4 @@
 import requests
-from bs4 import BeautifulSoup
 import json
 import os
 import asyncio
@@ -346,7 +345,6 @@ def check_prices():
                 
                 # Send alert (this is synchronous, but for background task it's okay)
                 try:
-                    import requests
                     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
                     requests.post(url, data={"chat_id": chat_id, "text": alert_msg}, timeout=10)
                     print(f"[SUCCESS] Price drop alert sent for {title}")
