@@ -16,6 +16,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
 # ==============================
 # CONFIG
@@ -116,7 +118,13 @@ def fetch_price_selenium(product_link):
         print(f"[DEBUG] Using user agent: {selected_user_agent}")
         
         print("[DEBUG] Initializing Chrome webdriver...")
-        driver = webdriver.Chrome(options=options)
+        try:
+            driver = webdriver.Chrome(options=options)
+        except Exception:
+            # Fallback: auto-install driver for host EC2 without Docker
+            print("[DEBUG] Falling back to webdriver-manager for ChromeDriver...")
+            service = ChromeService(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=options)
         driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         
         print(f"[DEBUG] Navigating to: {product_link}")
@@ -205,7 +213,12 @@ def get_product_title_selenium(product_link):
             pass
         options.add_argument(f'--user-agent={random.choice(USER_AGENTS)}')
         
-        driver = webdriver.Chrome(options=options)
+        try:
+            driver = webdriver.Chrome(options=options)
+        except Exception:
+            print("[DEBUG] Falling back to webdriver-manager for ChromeDriver (title fetch)...")
+            service = ChromeService(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=options)
         driver.get(product_link)
         time.sleep(2)
         
